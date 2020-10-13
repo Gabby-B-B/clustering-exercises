@@ -18,29 +18,29 @@ def get_connection(db, user=user, host=host, password=password):
     return f'mysql+pymysql://{user}:{password}@{host}/{db}'
 
 
-# In[6]:
+# In[32]:
 
 
-sql_query = '''
-SELECT * FROM properties_2017
-JOIN airconditioningtype ON properties_2017.airconditioningtypeid= airconditioningtype.airconditioningtypeid
-JOIN architecturalstyletype ON properties_2017.architecturalstyletypeid = architecturalstyletype.architecturalstyletypeid
-JOIN heatingorsystemtype ON properties_2017.heatingorsystemtypeid = heatingorsystemtype.heatingorsystemtypeid
-JOIN propertylandusetype ON properties_2017.propertylandusetypeid = propertylandusetype.propertylandusetypeid
-JOIN predictions_2017 ON properties_2017.parcelid = predictions_2017.parcelid
+sql_query = ''' SELECT * FROM properties_2017
+LEFT JOIN airconditioningtype ON properties_2017.airconditioningtypeid= airconditioningtype.airconditioningtypeid
+LEFT JOIN architecturalstyletype ON properties_2017.architecturalstyletypeid = architecturalstyletype.architecturalstyletypeid
+LEFT JOIN heatingorsystemtype ON properties_2017.heatingorsystemtypeid = heatingorsystemtype.heatingorsystemtypeid
+LEFT JOIN propertylandusetype ON properties_2017.propertylandusetypeid = propertylandusetype.propertylandusetypeid
+LEFT JOIN predictions_2017 ON properties_2017.parcelid = predictions_2017.parcelid
 LEFT JOIN buildingclasstype ON properties_2017.buildingclasstypeid = buildingclasstype.buildingclasstypeid
 LEFT JOIN storytype ON properties_2017.storytypeid = storytype.storytypeid
 LEFT JOIN typeconstructiontype ON properties_2017.typeconstructiontypeid = typeconstructiontype.typeconstructiontypeid
 LEFT JOIN unique_properties ON properties_2017.parcelid = unique_properties.parcelid
-WHERE transactiondate LIKE '2017-%%-%%'
-AND WHERE longitude IS NOT NULL AND WHERE latitude IS NOT NULL;
+WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+AND properties_2017.propertylandusetypeid IN ('260', '261', '262', '263', '264', '266', '268', '273', '274', '275', '276', '279')
+AND transactiondate LIKE '2017-%%-%%'
             '''
 df = pd.read_sql(sql_query, get_connection('zillow'))
 df.to_csv('zillow_df.csv')
 df.info()
 
 
-# In[15]:
+# In[33]:
 
 
 def get_zillow_data():
@@ -50,37 +50,19 @@ def get_zillow_data():
     else:
         # read the SQL query into a dataframe
         df = pd.read_sql('''SELECT * FROM properties_2017
-JOIN airconditioningtype ON properties_2017.airconditioningtypeid= airconditioningtype.airconditioningtypeid
-JOIN architecturalstyletype ON properties_2017.architecturalstyletypeid = architecturalstyletype.architecturalstyletypeid
-JOIN heatingorsystemtype ON properties_2017.heatingorsystemtypeid = heatingorsystemtype.heatingorsystemtypeid
-JOIN propertylandusetype ON properties_2017.propertylandusetypeid = propertylandusetype.propertylandusetypeid
-JOIN predictions_2017 ON properties_2017.parcelid = predictions_2017.parcelid
+LEFT JOIN airconditioningtype ON properties_2017.airconditioningtypeid= airconditioningtype.airconditioningtypeid
+LEFT JOIN architecturalstyletype ON properties_2017.architecturalstyletypeid = architecturalstyletype.architecturalstyletypeid
+LEFT JOIN heatingorsystemtype ON properties_2017.heatingorsystemtypeid = heatingorsystemtype.heatingorsystemtypeid
+LEFT JOIN propertylandusetype ON properties_2017.propertylandusetypeid = propertylandusetype.propertylandusetypeid
+LEFT JOIN predictions_2017 ON properties_2017.parcelid = predictions_2017.parcelid
 LEFT JOIN buildingclasstype ON properties_2017.buildingclasstypeid = buildingclasstype.buildingclasstypeid
 LEFT JOIN storytype ON properties_2017.storytypeid = storytype.storytypeid
 LEFT JOIN typeconstructiontype ON properties_2017.typeconstructiontypeid = typeconstructiontype.typeconstructiontypeid
 LEFT JOIN unique_properties ON properties_2017.parcelid = unique_properties.parcelid
-WHERE transactiondate LIKE '2017-%%-%%'
-AND WHERE longitude IS NOT NULL AND WHERE latitude IS NOT NULL; ''', get_connection('zillow'))
+WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+AND properties_2017.propertylandusetypeid IN ('260', '261', '262', '263', '264', '266', '268', '273', '274', '275', '276', '279')
+AND transactiondate LIKE '2017-%%-%% ''', get_connection('zillow'))
         # Write that dataframe to disk for later. Called "caching" the data for later.
         df.to_file(filename)
         # Return the dataframe to the calling code
         return df
-
-
-# In[13]:
-
-
-df.info()
-
-
-# In[19]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
